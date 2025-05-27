@@ -1,0 +1,568 @@
+{% extends "base.html" %}
+{% block title %}Pretest - Lab Bahasa AI{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col-md-12 text-center">
+      <h1>Pretest Kemampuan Bahasa</h1>
+      <p class="lead">
+        Selesaikan tes ini untuk menentukan level kemampuan Anda dan mendapatkan materi pembelajaran yang sesuai.
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+      <!-- Konfirmasi Pretest -->
+      <div class="card mb-4" id="confirmation-card">
+        <div class="card-header bg-primary text-white">
+          <span>Konfirmasi Pretest</span>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-warning">
+            <h5><i class="fas fa-exclamation-triangle mr-2"></i> Perhatian!</h5>
+            <p>Sebelum memulai pretest, pastikan hal-hal berikut:</p>
+            <ul>
+              <li>Anda memiliki waktu yang cukup untuk menyelesaikan pretest</li>
+              <li>Pretest ini memiliki batas waktu <strong>10 menit</strong></li>
+              <li>Timer akan terus berjalan bahkan jika halaman di-refresh</li>
+              <li>Jawaban Anda akan tersimpan otomatis</li>
+            </ul>
+          </div>
+          <div class="d-grid gap-2">
+            <button id="start-pretest-btn" class="btn btn-primary btn-lg">
+              <i class="fas fa-play-circle me-2"></i> Mulai Pretest
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timer yang terlihat -->
+      <div class="sticky-top pt-2 mb-3" style="top: 60px; z-index: 100;">
+        <div class="card bg-light border-0 shadow-sm d-none" id="timer-card">
+          <div class="card-body py-2 px-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <strong>Sisa Waktu:</strong>
+              <div class="timer-display">
+                <span id="timer-minutes">45</span>:<span id="timer-seconds">00</span>
+              </div>
+            </div>
+            <div class="progress mt-1" style="height: 5px;">
+              <div id="timer-progress" class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card d-none" id="test-card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <span>Soal Pretest</span>
+          <span class="badge bg-light text-primary" id="question-counter">1 / {{ questions|length }}</span>
+        </div>
+        <div class="card-body">
+          <form id="pretest-form">
+            <div id="questions-container">
+              {% for question in questions %}
+              <div class="question-item mb-4 {% if not loop.first %}d-none{% endif %}" data-question-id="{{ question.id }}">
+                <h5 class="mb-3">{{ loop.index }}. {{ question.text }}</h5>
+
+                {% if question.type == 'multiple_choice' %}
+                <div class="options-container">
+                  {% for option in question.options %}
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="question-{{ question.id }}" id="option-{{ question.id }}-{{ loop.index }}" value="{{ option }}">
+                    <label class="form-check-label" for="option-{{ question.id }}-{{ loop.index }}">
+                      {{ option }}
+                    </label>
+                  </div>
+                  {% endfor %}
+                </div>
+                
+                {% elif question.type == 'true_false' %}
+                <div class="options-container">
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="question-{{ question.id }}" id="option-{{ question.id }}-true" value="true">
+                    <label class="form-check-label" for="option-{{ question.id }}-true">
+                      Benar
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="question-{{ question.id }}" id="option-{{ question.id }}-false" value="false">
+                    <label class="form-check-label" for="option-{{ question.id }}-false">
+                      Salah
+                    </label>
+                  </div>
+                </div>
+                
+                {% elif question.type == 'essay' %}
+                <div class="form-group">
+                  <textarea class="form-control" name="question-{{ question.id }}" rows="5" placeholder="Tuliskan jawaban Anda di sini..."></textarea>
+                  <small class="form-text text-muted">Min. {{ question.min_words }} kata</small>
+                  <div class="mt-2">
+                    <span class="word-count">0</span> kata
+                  </div>
+                </div>
+                
+                {% elif question.type == 'fill_blank' %}
+                <div class="form-group">
+                  <input type="text" class="form-control" name="question-{{ question.id }}" placeholder="Masukkan kata yang tepat...">
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between mt-4">
+                  {% if not loop.first %}
+                  <button type="button" class="btn btn-secondary btn-prev">Sebelumnya</button>
+                  {% else %}
+                  <div></div>
+                  {% endif %}
+
+                  {% if not loop.last %}
+                  <button type="button" class="btn btn-primary btn-next">Selanjutnya</button>
+                  {% else %}
+                  <button type="button" class="btn btn-success btn-submit">Selesai & Kirim</button>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </form>
+          
+          <!-- Loading spinner -->
+          <div id="loading-container" class="text-center d-none">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Mengevaluasi jawaban Anda...</p>
+          </div>
+          
+          <!-- Results container, initially hidden -->
+          <div id="result-container" class="d-none">
+            <h4 class="mb-3">Hasil Pretest</h4>
+            <div class="alert alert-info">
+              <p>Berdasarkan jawaban Anda:</p>
+              <p>Level kemampuan: <span id="result-level" class="fw-bold"></span></p>
+              <p>Skor: <span id="result-score" class="fw-bold"></span> dari <span id="result-total-points"></span> (<span id="result-percentage"></span>%)</p>
+              <p>Jawaban benar: <span id="result-correct-count" class="fw-bold"></span> dari <span id="result-total-questions"></span> soal</p>
+            </div>
+            <p>Anda akan mendapatkan materi pembelajaran yang sesuai dengan level Anda.</p>
+            <a id="continue-button" href="#" class="btn btn-primary">Lanjutkan ke Pembelajaran</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-10 mx-auto mt-4 mt-lg-0">
+      <div class="card mb-4">
+        <div class="card-header bg-info text-white">Panduan Pretest</div>
+        <div class="card-body">
+          <p>Tes ini terdiri dari beberapa jenis soal:</p>
+          <ul>
+            <li><strong>Pilihan Ganda</strong> - Pilih satu jawaban yang benar</li>
+            <li><strong>Benar/Salah</strong> - Tentukan apakah pernyataan benar atau salah</li>
+            <li><strong>Esai</strong> - Tuliskan jawaban dengan jumlah kata minimal yang ditentukan</li>
+            <li><strong>Isian</strong> - Isi bagian rumpang dengan kata yang tepat</li>
+          </ul>
+          <p>Hasil tes ini akan menentukan level kemampuan bahasa Anda dan materi pembelajaran yang akan diberikan.</p>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header bg-warning text-white">Tips</div>
+        <div class="card-body">
+          <ul>
+            <li>Pastikan Anda menjawab semua pertanyaan</li>
+            <li>Untuk soal esai, perhatikan jumlah kata minimal</li>
+            <li>Bacalah setiap pertanyaan dengan teliti</li>
+            <li><strong>Ada batas waktu 45 menit</strong> untuk menyelesaikan pretest</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Variables
+    let currentQuestionIndex = 0;
+    const questionItems = document.querySelectorAll('.question-item');
+    const totalQuestions = questionItems.length;
+    const questionCounter = document.getElementById('question-counter');
+    const pretestForm = document.getElementById('pretest-form');
+    const loadingContainer = document.getElementById('loading-container');
+    const resultContainer = document.getElementById('result-container');
+    const questionsContainer = document.getElementById('questions-container');
+    const continueButton = document.getElementById('continue-button');
+    const confirmationCard = document.getElementById('confirmation-card');
+    const testCard = document.getElementById('test-card');
+    const timerCard = document.getElementById('timer-card');
+    const startTestBtn = document.getElementById('start-pretest-btn');
+    const timerMinutes = document.getElementById('timer-minutes');
+    const timerSeconds = document.getElementById('timer-seconds');
+    const timerProgress = document.getElementById('timer-progress');
+    
+    const TEST_TIME = 10 * 60; // 45 minutes in seconds
+    const STORAGE_PREFIX = 'pretest_';
+    const TEST_TYPE = 'pretest'; // untuk membedakan dengan post-test
+    
+    // Cek apakah tes sudah dimulai sebelumnya
+    function checkTestStatus() {
+      const startTime = localStorage.getItem(`${STORAGE_PREFIX}start_time`);
+      const isStarted = localStorage.getItem(`${STORAGE_PREFIX}is_started`);
+      const answers = localStorage.getItem(`${STORAGE_PREFIX}answers`);
+      
+      if (isStarted && startTime) {
+        // Test sudah dimulai sebelumnya
+        startTest(false);
+        
+        // Kembalikan jawaban-jawaban yang tersimpan
+        if (answers) {
+          restoreAnswers(JSON.parse(answers));
+        }
+      }
+    }
+    
+    // Restore jawaban yang tersimpan
+    function restoreAnswers(savedAnswers) {
+      for (const questionId in savedAnswers) {
+        const value = savedAnswers[questionId];
+        const questionEl = document.querySelector(`.question-item[data-question-id="${questionId}"]`);
+        
+        if (!questionEl) continue;
+        
+        if (questionId.includes('-mc-') || questionId.includes('-tf-')) {
+          // Multiple choice atau true/false
+          const input = document.querySelector(`input[name="question-${questionId}"][value="${value}"]`);
+          if (input) input.checked = true;
+        } else if (questionId.includes('-essay-')) {
+          // Essay
+          const textarea = document.querySelector(`textarea[name="question-${questionId}"]`);
+          if (textarea) {
+            textarea.value = value;
+            textarea.dispatchEvent(new Event('input')); // Update word count
+          }
+        } else if (questionId.includes('-fill-')) {
+          // Fill blank
+          const input = document.querySelector(`input[name="question-${questionId}"]`);
+          if (input) input.value = value;
+        }
+      }
+      
+      // Tampilkan soal terakhir yang dilihat
+      const lastQuestionIndex = parseInt(localStorage.getItem(`${STORAGE_PREFIX}current_index`) || '0');
+      if (lastQuestionIndex > 0 && lastQuestionIndex < totalQuestions) {
+        questionItems.forEach(item => item.classList.add('d-none'));
+        currentQuestionIndex = lastQuestionIndex;
+        questionItems[currentQuestionIndex].classList.remove('d-none');
+        updateQuestionCounter();
+      }
+    }
+    
+    // Simpan jawaban ke localStorage
+    function saveAnswer(questionId, value) {
+      const answers = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}answers`) || '{}');
+      answers[questionId] = value;
+      localStorage.setItem(`${STORAGE_PREFIX}answers`, JSON.stringify(answers));
+    }
+    
+    // Event listeners untuk save jawaban
+    function setupAnswerSaving() {
+      // Radio buttons (multiple choice & true/false)
+      document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+          const name = this.getAttribute('name');
+          const questionId = name.replace('question-', '');
+          saveAnswer(questionId, this.value);
+        });
+      });
+      
+      // Textareas (essay)
+      document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('input', function() {
+          const name = this.getAttribute('name');
+          const questionId = name.replace('question-', '');
+          saveAnswer(questionId, this.value.trim());
+        });
+      });
+      
+      // Text inputs (fill blank)
+      document.querySelectorAll('input[type="text"]').forEach(input => {
+        input.addEventListener('input', function() {
+          const name = this.getAttribute('name');
+          const questionId = name.replace('question-', '');
+          saveAnswer(questionId, this.value.trim());
+        });
+      });
+    }
+    
+    // Timer function
+    function startTimer() {
+      const startTime = parseInt(localStorage.getItem(`${STORAGE_PREFIX}start_time`) || Date.now().toString());
+      const currentTime = Date.now();
+      const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
+      let remainingSeconds = TEST_TIME - elapsedSeconds;
+      
+      // Update timer UI
+      function updateTimerDisplay() {
+        if (remainingSeconds <= 0) {
+          // Time's up, submit automatically
+          clearInterval(timerInterval);
+          document.querySelector('.btn-submit').click();
+          return;
+        }
+        
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        
+        timerMinutes.textContent = minutes.toString().padStart(2, '0');
+        timerSeconds.textContent = seconds.toString().padStart(2, '0');
+        
+        // Update progress bar
+        const progressPercent = (remainingSeconds / TEST_TIME) * 100;
+        timerProgress.style.width = `${progressPercent}%`;
+        
+        // Change progress bar color based on remaining time
+        if (remainingSeconds < 300) { // less than 5 minutes
+          timerProgress.classList.replace('bg-primary', 'bg-danger');
+        } else if (remainingSeconds < 600) { // less than 10 minutes
+          timerProgress.classList.replace('bg-primary', 'bg-warning');
+        }
+        
+        remainingSeconds--;
+      }
+      
+      // Initial update
+      updateTimerDisplay();
+      
+      // Update every second
+      const timerInterval = setInterval(updateTimerDisplay, 1000);
+      
+      // Store interval ID for cleanup
+      window.pretestTimerInterval = timerInterval;
+    }
+    
+    // Start the test
+    function startTest(isNewStart = true) {
+      if (isNewStart) {
+        // Set start time and mark as started in localStorage
+        localStorage.setItem(`${STORAGE_PREFIX}start_time`, Date.now().toString());
+        localStorage.setItem(`${STORAGE_PREFIX}is_started`, 'true');
+        localStorage.setItem(`${STORAGE_PREFIX}answers`, '{}');
+        localStorage.setItem(`${STORAGE_PREFIX}current_index`, '0');
+      }
+      
+      // Hide confirmation card and show test card
+      confirmationCard.classList.add('d-none');
+      testCard.classList.remove('d-none');
+      timerCard.classList.remove('d-none');
+      
+      // Start timer
+      startTimer();
+      
+      // Setup answer saving
+      setupAnswerSaving();
+    }
+    
+    // Start test button click
+    if (startTestBtn) {
+      startTestBtn.addEventListener('click', function() {
+        startTest(true);
+      });
+    }
+    
+    // Update the counter
+    function updateQuestionCounter() {
+      questionCounter.textContent = `${currentQuestionIndex + 1} / ${totalQuestions}`;
+      localStorage.setItem(`${STORAGE_PREFIX}current_index`, currentQuestionIndex.toString());
+    }
+    
+    // Word count for essays
+    document.querySelectorAll('textarea').forEach(textarea => {
+      textarea.addEventListener('input', function() {
+        const wordCount = this.value.trim().split(/\s+/).filter(Boolean).length;
+        this.closest('.form-group').querySelector('.word-count').textContent = wordCount;
+      });
+    });
+    
+    // Next button click
+    document.querySelectorAll('.btn-next').forEach(button => {
+      button.addEventListener('click', function() {
+        // Get the current question
+        const currentQuestion = questionItems[currentQuestionIndex];
+        
+        // Validate if question is answered
+        if (!isQuestionAnswered(currentQuestion)) {
+          alert('Harap jawab pertanyaan ini terlebih dahulu.');
+          return;
+        }
+        
+        // Hide current question
+        currentQuestion.classList.add('d-none');
+        
+        // Show next question
+        currentQuestionIndex++;
+        questionItems[currentQuestionIndex].classList.remove('d-none');
+        
+        // Update counter
+        updateQuestionCounter();
+      });
+    });
+    
+    // Previous button click
+    document.querySelectorAll('.btn-prev').forEach(button => {
+      button.addEventListener('click', function() {
+        // Hide current question
+        questionItems[currentQuestionIndex].classList.add('d-none');
+        
+        // Show previous question
+        currentQuestionIndex--;
+        questionItems[currentQuestionIndex].classList.remove('d-none');
+        
+        // Update counter
+        updateQuestionCounter();
+      });
+    });
+    
+    // Check if a question has been answered
+    function isQuestionAnswered(questionEl) {
+      const questionId = questionEl.dataset.questionId;
+      const questionType = questionId.includes('-tf-') ? 'true_false' :
+                          questionId.includes('-mc-') ? 'multiple_choice' :
+                          questionId.includes('-essay-') ? 'essay' :
+                          questionId.includes('-fill-') ? 'fill_blank' : '';
+      
+      if (questionType === 'multiple_choice' || questionType === 'true_false') {
+        return !!questionEl.querySelector(`input[name="question-${questionId}"]:checked`);
+      } else if (questionType === 'essay') {
+        const textarea = questionEl.querySelector(`textarea[name="question-${questionId}"]`);
+        return textarea && textarea.value.trim() !== '';
+      } else if (questionType === 'fill_blank') {
+        const input = questionEl.querySelector(`input[name="question-${questionId}"]`);
+        return input && input.value.trim() !== '';
+      }
+      
+      return false;
+    }
+    
+    // Submit button click
+    document.querySelector('.btn-submit').addEventListener('click', function() {
+      // Get the current question
+      const currentQuestion = questionItems[currentQuestionIndex];
+      
+      // Validate if question is answered
+      if (!isQuestionAnswered(currentQuestion)) {
+        alert('Harap jawab pertanyaan ini terlebih dahulu.');
+        return;
+      }
+      
+      // Validate all questions are answered
+      let allAnswered = true;
+      questionItems.forEach(questionEl => {
+        if (!isQuestionAnswered(questionEl)) {
+          allAnswered = false;
+        }
+      });
+      
+      if (!allAnswered) {
+        if (!confirm('Ada beberapa pertanyaan yang belum dijawab. Lanjutkan mengirim?')) {
+          return;
+        }
+      }
+      
+      // Collect answers
+      const answers = {};
+      questionItems.forEach(questionEl => {
+        const questionId = questionEl.dataset.questionId;
+        const questionType = questionId.includes('-tf-') ? 'true_false' :
+                            questionId.includes('-mc-') ? 'multiple_choice' :
+                            questionId.includes('-essay-') ? 'essay' :
+                            questionId.includes('-fill-') ? 'fill_blank' : '';
+        
+        if (questionType === 'multiple_choice' || questionType === 'true_false') {
+          const checkedInput = questionEl.querySelector(`input[name="question-${questionId}"]:checked`);
+          if (checkedInput) {
+            answers[questionId] = checkedInput.value;
+          }
+        } else if (questionType === 'essay') {
+          const textarea = questionEl.querySelector(`textarea[name="question-${questionId}"]`);
+          if (textarea) {
+            answers[questionId] = textarea.value.trim();
+          }
+        } else if (questionType === 'fill_blank') {
+          const input = questionEl.querySelector(`input[name="question-${questionId}"]`);
+          if (input) {
+            answers[questionId] = input.value.trim();
+          }
+        }
+      });
+      
+      // Show loading spinner
+      questionsContainer.classList.add('d-none');
+      loadingContainer.classList.remove('d-none');
+      timerCard.classList.add('d-none');
+      
+      // Bersihkan localStorage dan interval saat submit
+      if (window.pretestTimerInterval) {
+        clearInterval(window.pretestTimerInterval);
+      }
+      
+      // Send answers for evaluation
+      fetch('/pretest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(answers)
+      })
+      .then(response => response.json())
+      .then(result => {
+        // Bersihkan localStorage saat berhasil
+        localStorage.removeItem(`${STORAGE_PREFIX}start_time`);
+        localStorage.removeItem(`${STORAGE_PREFIX}is_started`);
+        localStorage.removeItem(`${STORAGE_PREFIX}answers`);
+        localStorage.removeItem(`${STORAGE_PREFIX}current_index`);
+        
+        // Hide loading spinner
+        loadingContainer.classList.add('d-none');
+        
+        // Show results
+        resultContainer.classList.remove('d-none');
+        
+        // Update result display
+        document.getElementById('result-level').textContent = result.level;
+        document.getElementById('result-score').textContent = result.score;
+        document.getElementById('result-total-points').textContent = result.total_points;
+        document.getElementById('result-percentage').textContent = result.percentage;
+        document.getElementById('result-correct-count').textContent = result.correct_count;
+        document.getElementById('result-total-questions').textContent = result.total_questions;
+        
+        // Set continue button href
+        if (result.redirect_url) {
+          continueButton.href = result.redirect_url;
+        } else {
+          continueButton.href = '/';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        loadingContainer.classList.add('d-none');
+        questionsContainer.classList.remove('d-none');
+        timerCard.classList.remove('d-none');
+        alert('Terjadi kesalahan saat mengevaluasi jawaban. Silakan coba lagi.');
+      });
+    });
+    
+    // Cek status tes saat halaman dimuat
+    checkTestStatus();
+    
+    // Cleanup handler saat navigasi dari halaman
+    window.addEventListener('beforeunload', function() {
+      if (window.pretestTimerInterval) {
+        clearInterval(window.pretestTimerInterval);
+      }
+    });
+  });
+</script>
+{% endblock %} 

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Lab Bahasa - Belajar Bahasa dengan AI{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  {% if not session.pretest_completed %}
+  <div class="alert alert-warning mb-5">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Mulai dengan Pretest!</h4>
+        <p>Untuk mengakses semua fitur Lab Bahasa AI, Anda perlu menyelesaikan pretest terlebih dahulu. Pretest ini akan menentukan level kemampuan bahasa Anda dan menyediakan materi pembelajaran yang sesuai dengan level tersebut.</p>
+      </div>
+      <div class="col-md-4 text-end">
+        <a href="/pretest" class="btn btn-success btn-lg">Mulai Pretest Sekarang</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row align-items-center mb-5">
+    <div class="col-md-6">
+      <h1 class="display-4 fw-bold">Lab Bahasa AI</h1>
+      <p class="lead">Platform pembelajaran bahasa interaktif dengan teknologi AI.</p>
+      <p class="mb-4">
+        Tingkatkan kemampuan bahasa Anda dengan program pembelajaran adaptif yang disesuaikan dengan level kemampuan Anda.
+      </p>
+      
+      <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+        {% if session.pretest_completed %}
+          <a href="/learning" class="btn btn-primary btn-lg px-4">
+            Lanjutkan Pembelajaran
+          </a>
+          <a href="/post-test" class="btn btn-success btn-lg px-4">
+            Ambil Post-Test
+          </a>
+        {% else %}
+          <a href="/pretest" class="btn btn-success btn-lg px-4">
+            Mulai Pretest
+          </a>
+        {% endif %}
+        <a href="/evaluation" class="btn btn-outline-secondary btn-lg px-4">
+          Evaluasi Mandiri
+        </a>
+      </div>
+      
+      {% if session.pretest_completed %}
+      <div class="alert alert-info mt-4">
+        <div class="d-flex align-items-center">
+          <div class="me-3">
+            <span class="badge bg-primary p-2">Level {{ session.user_level }}</span>
+          </div>
+          <div>
+            <h5 class="mb-0">Selamat datang kembali!</h5>
+            <p class="mb-0">Anda telah menyelesaikan pretest pada {{ session.pretest_date }}</p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    <div class="col-md-6 text-center">
+   
+    </div>
+  </div>
+
+  <div class="row mb-5">
+    <div class="col-md-12 text-center">
+      <h2>Fitur Lab Bahasa AI</h2>
+      <p class="lead">Berbagai alat AI untuk membantu Anda menguasai bahasa baru</p>
+    </div>
+  </div>
+
+  <div class="row g-4 pb-5">
+    <div class="col-md-4">
+      <div class="card h-100 {% if not session.pretest_completed %}card-highlight{% endif %}">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="fas fa-check-circle text-primary me-2"></i>
+            Pretest & Post-test
+          </h5>
+          <p class="card-text">
+            Mulai dengan pretest untuk menentukan level kemampuan Anda. Kemudian naik level melalui post-test untuk mengakses materi pembelajaran lanjutan.
+          </p>
+          {% if not session.pretest_completed %}
+          <a href="/pretest" class="btn btn-success">Mulai Pretest</a>
+          {% else %}
+          <a href="/post-test" class="btn btn-sm btn-primary">Ambil Post-test</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card h-100 {% if not session.pretest_completed %}text-muted{% endif %}">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="fas fa-pen text-primary me-2"></i>
+            Koreksi Tata Bahasa
+          </h5>
+          <p class="card-text">
+            Dapatkan koreksi instan untuk teks Anda dengan penjelasan mendalam tentang kesalahan dan saran perbaikan.
+          </p>
+          {% if session.pretest_completed %}
+          <a href="/grammar" class="btn btn-sm btn-primary">Buka Grammar Checker</a>
+          {% else %}
+          <a href="/pretest" class="btn btn-sm btn-secondary">Selesaikan Pretest Dulu</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card h-100 {% if not session.pretest_completed %}text-muted{% endif %}">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="fas fa-microphone text-primary me-2"></i>
+            Latihan Pengucapan
+          </h5>
+          <p class="card-text">
+            Latih pengucapan Anda dengan AI yang memberikan umpan balik langsung tentang akurasi dan kejelasan.
+          </p>
+          {% if session.pretest_completed %}
+          <a href="/speech" class="btn btn-sm btn-primary">Latih Pengucapan</a>
+          {% else %}
+          <a href="/pretest" class="btn btn-sm btn-secondary">Selesaikan Pretest Dulu</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 pb-5">
+    <div class="col-md-4">
+      <div class="card h-100 {% if not session.pretest_completed %}text-muted{% endif %}">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="fas fa-tasks text-primary me-2"></i>
+            Pembelajaran Adaptif
+          </h5>
+          <p class="card-text">
+            Soal-soal yang secara otomatis menyesuaikan dengan level kemampuan Anda, memberikan tantangan yang tepat.
+          </p>
+          {% if session.pretest_completed %}
+          <a href="/learning" class="btn btn-sm btn-primary">Mulai Belajar</a>
+          {% else %}
+          <a href="/pretest" class="btn btn-sm btn-secondary">Selesaikan Pretest Dulu</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card h-100 {% if not session.pretest_completed %}text-muted{% endif %}">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="fas fa-user-graduate text-primary me-2"></i>
+            Tutor Virtual
+          </h5>
+          <p class="card-text">
+            Berinteraksi dengan tutor AI yang dapat membantu Anda berlatih percakapan dan menjawab pertanyaan.
+          </p>
+          {% if session.pretest_completed %}
+          <a href="/virtual-tutor" class="btn btn-sm btn-primary">Bicara dengan Tutor</a>
+          {% else %}
+          <a href="/pretest" class="btn btn-sm btn-secondary">Selesaikan Pretest Dulu</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="fas fa-chart-line text-primary me-2"></i>
+            Evaluasi & Laporan Kemajuan
+          </h5>
+          <p class="card-text">
+            Pantau kemajuan belajar Anda, identifikasi area yang perlu ditingkatkan, dan dapatkan rekomendasi personalisasi.
+          </p>
+          <a href="/evaluation" class="btn btn-sm btn-primary">Lihat Evaluasi</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .card-highlight {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+  }
+</style>
+{% endblock %}

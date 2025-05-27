@@ -1,0 +1,419 @@
+/* Main CSS for Lab Bahasa AI */
+
+/* Global styles */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background-color: #f8f9fa;
+  line-height: 1.6;
+  padding-top: 0;
+}
+
+/* Sidebar and Layout */
+.wrapper {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+  min-height: 100vh;
+}
+
+#sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  background: #343a40;
+  color: #fff;
+  transition: all 0.3s;
+  z-index: 1040;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+#sidebar.active {
+  margin-left: -250px;
+}
+
+#sidebar .sidebar-header {
+  padding: 20px;
+  background: #2c3136;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#sidebar ul.components {
+  padding: 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid #4b545c;
+}
+
+#sidebar ul p {
+  color: #fff;
+  padding: 10px;
+}
+
+#sidebar ul li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#sidebar ul li a {
+  padding: 10px 20px;
+  font-size: 1.1em;
+  display: block;
+  color: #ddd;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+#sidebar ul li a:hover {
+  color: #fff;
+  background: #495057;
+}
+
+#sidebar ul li.active > a {
+  color: #fff;
+  background: #0d6efd;
+}
+
+#sidebar .sidebar-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+#content {
+  width: 100%;
+  min-height: 100vh;
+  transition: all 0.3s;
+  position: relative;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header button {
+  color: #fff;
+}
+
+.highlight-menu {
+  background: rgba(255, 193, 7, 0.1);
+  border-left: 4px solid #ffc107;
+}
+
+.sidebar-user-info {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+}
+
+.sidebar-header {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #adb5bd;
+  font-weight: bold;
+  padding: 10px 20px;
+  margin-top: 15px;
+}
+
+.sidebar-footer {
+  padding: 15px;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-container {
+  position: fixed;
+  top: 0;
+  left: 250px;
+  right: 0;
+  z-index: 1030;
+  width: auto;
+  transition: all 0.3s ease;
+}
+
+#sidebar.active ~ #content .navbar-container {
+  left: 0;
+}
+
+.content-area {
+  flex: 1;
+  margin-top: 60px;
+}
+
+.navbar {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  background-color: #0d6efd;
+  min-height: 50px;
+}
+
+/* Shrinked navbar styles */
+.navbar.navbar-shrink {
+  padding: 2px 15px;
+  min-height: 40px;
+}
+
+.navbar.navbar-shrink .navbar-brand {
+  font-size: 1rem;
+}
+
+.navbar.navbar-shrink .btn {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.8rem;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.2rem;
+  padding-left: 5px;
+  transition: all 0.3s ease;
+}
+
+#sidebarCollapse {
+  background: transparent;
+  border: none;
+  padding: 5px 10px;
+}
+
+#sidebarCollapse:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.jumbotron {
+  background-color: #f0f8ff;
+  border-radius: 0.5rem;
+  padding: 2rem;
+}
+
+.container-fluid {
+  padding: 20px;
+}
+
+.footer {
+  margin-top: 3rem;
+  padding: 1rem 0;
+  background-color: #f8f9fa;
+}
+
+/* Card styling */
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  font-weight: 500;
+}
+
+/* Form styling */
+.form-control:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+textarea.form-control {
+  min-height: 120px;
+}
+
+/* Grammar correction page */
+#corrected-text {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 0.25rem;
+  border: 1px solid #dee2e6;
+}
+
+/* Speech recognition page */
+#record-button {
+  min-width: 140px;
+}
+
+#recording-timer {
+  font-family: monospace;
+  font-size: 1.2rem;
+}
+
+/* Adaptive learning page */
+.question-item {
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  background-color: #fff;
+}
+
+.feedback-container .alert {
+  margin-bottom: 0;
+}
+
+.form-check-input:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.progress {
+  height: 1.5rem;
+  border-radius: 0.3rem;
+}
+
+/* Button styling */
+.btn {
+  border-radius: 0.3rem;
+}
+
+/* Pretest styles */
+.text-muted .card-title,
+.text-muted .card-text {
+  opacity: 0.6;
+}
+
+.text-muted .btn-secondary {
+  cursor: pointer;
+}
+
+.card-highlight {
+  border: 2px solid #28a745;
+  position: relative;
+}
+
+.card-highlight::before {
+  content: "Langkah Pertama";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #28a745;
+  color: white;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+/* Flash message styling */
+.flash-messages .alert {
+  margin-bottom: 1rem;
+  border-radius: 0.3rem;
+}
+
+/* Custom badge for required steps */
+.badge.bg-warning.text-dark {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Locked feature indicator */
+.nav-item .nav-link.disabled {
+  position: relative;
+}
+
+.nav-item .nav-link.disabled::after {
+  content: "🔒";
+  margin-left: 5px;
+  font-size: 0.8rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #sidebar {
+    margin-left: -250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1050;
+  }
+  
+  #sidebar.active {
+    margin-left: 0;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  #content {
+    width: 100%;
+  }
+  
+  #content.active {
+    position: relative;
+    left: 0;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+
+  .row {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+  }
+
+  .col-md-4,
+  .col-md-6,
+  .col-md-8,
+  .col-md-12 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .jumbotron {
+    padding: 1.5rem;
+  }
+  
+  .card-highlight::before {
+    font-size: 0.7rem;
+    top: -10px;
+  }
+  
+  #sidebarCollapseBtn {
+    display: block;
+  }
+  
+  /* Add overlay when sidebar is active on mobile */
+  body.sidebar-active::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+  }
+  
+  /* Ensure content is below navbar on mobile */
+  .content-area {
+    margin-top: 56px;
+  }
+  
+  /* Ensure navbar remains on top of sidebar on mobile */
+  .navbar-container {
+    left: 0;
+    z-index: 1040;
+  }
+  
+  .navbar {
+    z-index: 1030;
+  }
+}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Koreksi Tata Bahasa - Lab Bahasa AI{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1>Koreksi Tata Bahasa</h1>
+        <p class="lead">Masukkan teks Anda untuk dikoreksi tata bahasa secara otomatis menggunakan AI.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Input column - left side -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                Input Teks
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/grammar">
+                    <div class="mb-3">
+                        <label for="text" class="form-label">Teks</label>
+                        <textarea class="form-control" id="text" name="text" rows="6" required oninput="updateWordCount(this)">{{ original_text|default('', true) }}</textarea>
+                        <small id="wordCountInfo" class="form-text text-muted mt-1">
+                            Jumlah kata: <span id="wordCount">{% if word_count is defined %}{{ word_count }}{% else %}0{% endif %}</span>
+                        </small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="language" class="form-label">Bahasa</label>
+                        <select class="form-select" id="language" name="language">
+                            <option value="id" {% if language == 'id' or language is not defined %}selected{% endif %}>Bahasa Indonesia</option>
+                            <option value="en" {% if language == 'en' %}selected{% endif %}>Bahasa Inggris</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Koreksi Teks</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Result column - right side -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                Hasil Koreksi
+            </div>
+            <div class="card-body">
+                {% if corrected_text is defined %}
+                    <h5>{{ paraphrase_title }}</h5>
+                    <p id="corrected-text" class="mb-1">{{ corrected_text }}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <small class="text-muted">Jumlah kata: {{ count_words(corrected_text) }}</small>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('corrected-text')">Salin Teks</button>
+                    </div>
+                {% else %}
+                    <h5>Contoh Koreksi</h5>
+                    <div class="mb-3">
+                        <h6>Bahasa Indonesia</h6>
+                        <ul>
+                            <li>Saya pergi ke rumah nya kemarin.</li>
+                            <li>Dia tidak bisa di terima di sekolah itu.</li>
+                            <li>Belajar lah dengan rajin supaya sukses.</li>
+                        </ul>
+                        
+                        <h6>Bahasa Inggris</h6>
+                        <ul>
+                            <li>i am going to the store today.</li>
+                            <li>The children is playing in the garden.</li>
+                            <li>She have three books on her desk.</li>
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard(elementId) {
+    var element = document.getElementById(elementId);
+    var text = element.innerText;
+    
+    // Create a temporary textarea element
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    
+    // Select and copy the text
+    textarea.select();
+    try {
+        var successful = document.execCommand('copy');
+        if (successful) {
+            alert('Teks berhasil disalin ke clipboard!');
+        } else {
+            alert('Gagal menyalin teks');
+        }
+    } catch (err) {
+        alert('Gagal menyalin teks: ' + err);
+    }
+    
+    // Clean up
+    document.body.removeChild(textarea);
+}
+
+function updateWordCount(textarea) {
+    const text = textarea.value.trim();
+    const wordCount = text ? text.split(/\s+/).filter(word => word.length > 0).length : 0;
+    document.getElementById('wordCount').textContent = wordCount;
+}
+
+// Inisialisasi penghitung kata saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('text');
+    if (textarea) {
+        updateWordCount(textarea);
+    }
+});
+</script>
+{% endblock %} 
