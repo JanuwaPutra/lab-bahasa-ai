@@ -150,7 +150,7 @@ def correct_informal_words(text, language='id'):
     try:
         # Inisialisasi klien OpenRouter
         client = OpenAI(
-            api_key="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",
+            api_key="api",
             base_url="https://openrouter.ai/api/v1"
         )
         
@@ -222,7 +222,7 @@ def simulate_llm_correction(text, language='id'):
     try:
         # Inisialisasi klien OpenRouter
         client = OpenAI(
-            api_key="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",  # API key OpenRouter
+            api_key="key",  # API key OpenRouter
             base_url="https://openrouter.ai/api/v1"
         )
         
@@ -602,7 +602,7 @@ def analyze_sentence_structure(text, language='id'):
     """
     try:
         client = OpenAI(
-            api_key="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",
+            api_key="key",
             base_url="https://openrouter.ai/api/v1"
         )
         
